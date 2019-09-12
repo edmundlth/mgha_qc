@@ -10,6 +10,7 @@ RUN apt-get clean && \
                        liblzma-dev \
                        libncurses5-dev \
                        unzip \
+                       openjdk-11-jre-headless \
                        make && \
     apt-get clean && \
     apt-get purge && \

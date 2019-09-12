@@ -1,7 +1,7 @@
 
 # Run `samtools stats --revome-dups --required-flag 1` for paired end sequencing.
 task samtools_stats {
-    File bam_file
+    File input_bam
     String outfilename
 
     parameter_meta {
@@ -9,14 +9,16 @@ task samtools_stats {
     }
 
     command {
-        samtools stats --remove-dups --required-flag 1 ${bam_file} > ${outfilename}
+        samtools stats --remove-dups --required-flag 1 ${input_bam} > ${outfilename}
     }
 
     output {
-        File stats_output = "${outfilename}"
+        File samtools_stats_file = "${outfilename}"
     }
 
     runtime {
         docker : "edmundlth/samtools:v1.0"
+        cpu : "1"
+        memory : "2GB"
     }
 }
