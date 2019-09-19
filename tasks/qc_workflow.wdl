@@ -10,6 +10,8 @@ workflow qc_pipeline_test {
     Array[File] bams
     Array[File] vcfs
     File reference_fasta
+    File? multiqc_config_file
+    Boolean? megaqc_upload = true
 
     # Run `samtools stats` and picard metrics on all bam files
     scatter (bam in bams) {
@@ -19,12 +21,12 @@ workflow qc_pipeline_test {
                 outfilename = basename(bam, ".bam") + "_samtools_stats.txt"
         }
 
-#        call picard.picard_collect_alignment_summary_metrics as alignment_metrics {
-#            input :
-#                input_bam = bam,
-#                outfilename = basename(bam, ".bam") + "_AlignmentSummaryMetrics.txt",
-#                reference_fasta = reference_fasta
-#        }
+        call picard.picard_collect_alignment_summary_metrics as alignment_metrics {
+            input :
+                input_bam = bam,
+                outfilename = basename(bam, ".bam") + "_AlignmentSummaryMetrics.txt",
+                reference_fasta = reference_fasta
+        }
 
         call picard.picard_collect_insert_size_metrics as insert_size_metrics {
             input :
@@ -54,9 +56,11 @@ workflow qc_pipeline_test {
     call multiqc.multiqc as multiqc {
         input :
             fastqc_files = fastqc.fastqc_file,
-            #alignment_metrics_files = alignment_metrics.alignment_summary_metrics_file,
+            alignment_metrics_files = alignment_metrics.alignment_summary_metrics_file,
             insert_size_metrics_files = insert_size_metrics.insert_size_metrics_file,
             samtools_stats_files = samtools_stats.samtools_stats_file,
-            bcftools_stats_files = bcftools_stats.bcftools_stats_file
+            bcftools_stats_files = bcftools_stats.bcftools_stats_file,
+            multiqc_config_file = multiqc_config_file,
+            megaqc_upload = megaqc_upload
     }
 }

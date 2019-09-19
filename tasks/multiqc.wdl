@@ -2,10 +2,12 @@
 
 task multiqc {
     Array[File] fastqc_files
-    #Array[File] alignment_metrics_files
+    Array[File] alignment_metrics_files
     Array[File] insert_size_metrics_files
     Array[File] samtools_stats_files
     Array[File] bcftools_stats_files
+    File? multiqc_config_file
+    Boolean? megaqc_upload = true
 
     command {
         mkdir stats_dir
@@ -44,6 +46,20 @@ task multiqc {
                           --module bcftools \
                           --module picard \
                           --module fastqc
+
+        if [ -f ${multiqc_config_file} ]
+        then
+            cp ${multiqc_config_file} $HOME/.multiqc_config.yaml
+        else
+            :
+        fi
+
+        if [ ${megaqc_upload} ]
+        then
+            megaqc upload multiqc_data/multiqc_data.json --date $(date "+%Y-%m-%d, %H:%M")
+        else
+            :
+        fi
     }
 
     output {
