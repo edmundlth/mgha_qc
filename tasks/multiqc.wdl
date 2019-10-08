@@ -6,6 +6,7 @@ task multiqc {
     Array[File] insert_size_metrics_files
     Array[File] samtools_stats_files
     Array[File] bcftools_stats_files
+    File vcftools_relatedness2_file
     File? multiqc_config_file
     Boolean? megaqc_upload = true
 
@@ -40,6 +41,9 @@ task multiqc {
             ln $filepath stats_dir/bcftools_dir/$(basename $filepath)
         done
 
+        # vcftools relatedness2 hard link
+        mkdir stats_dir/vcftools_dir
+        ln ${vcftools_relatedness2_file} stats_dir/vcftools_dir/$(basename ${vcftools_relatedness2_file})
 
         # Run multiqc on all stats files
         multiqc stats_dir --module samtools \
@@ -68,7 +72,7 @@ task multiqc {
     }
 
     runtime {
-        docker : "edmundlth/multiqc:v1.0"
+        docker : "edmundlth/multiqc_megaqc:v1.0"
         cpu : "1"
         memory : "2GB"
     }
